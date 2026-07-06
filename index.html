@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genuary - 31 Itérations Interactives</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #0f0f11;
+            color: #ffffff;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        h1 { margin: 0 0 10px 0; font-size: 2.5rem; color: #f0f0f0; }
+        p { color: #888; margin: 0; font-size: 1.1rem; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #18181c;
+            border: 1px solid #2a2a32;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: #00ffaa;
+            box-shadow: 0 8px 20px rgba(0, 255, 170, 0.1);
+        }
+        .card-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #e0e0e6;
+        }
+        .card-prompt {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+        .btn-launch {
+            display: inline-block;
+            background: #00ffaa;
+            color: #0f0f11;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        /* Fenêtre Popup (Modal) pour afficher le p5.js en direct */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #18181c;
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid #333;
+            text-align: center;
+            position: relative;
+        }
+        #canvas-container {
+            width: 400px;
+            height: 400px;
+            background: #000;
+            margin: 15px auto;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .close-btn {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 1.8rem;
+            color: #fff;
+            cursor: pointer;
+        }
+        .close-btn:hover { color: #ff5555; }
+        #modal-title { margin-top: 0; color: #00ffaa; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Genuary - Galerie Interactive</h1>
+        <p>31 itérations de code d'art génératif exécutées en temps réel.</p>
+    </header>
+
+    <main class="grid" id="grid-container"></main>
+
+    <div class="modal" id="sketch-modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeSketch()">&times;</span>
+            <h2 id="modal-title">Jour X</h2>
+            <div id="canvas-container"></div>
+            <p style="color: #aaa; font-size: 0.9rem; margin: 0;">Code p5.js actif</p>
+        </div>
+    </div>
+
+    <script>
+        // La liste complète des 31 thèmes de Genuary
+        const prompts = [
+            "Vertical lines", "No randomness", "Space", "Black and White", "Isometric",
+            "Make a screen saver", "Progress bar", "Draw 1 million of something", "ASCII Art", "Tau (τ)",
+            "Impossible shapes", "Subdivision", "Triangles", "Less than 1KB", "Physics (Gravity)",
+            "Generative Palette", "Pi (π)", "What does wind look like?", "Op Art", "Generative Architecture",
+            "Collision detection", "Gradients", "80s Retro", "Geometric Art", "Recursive Tree",
+            "Symmetry", "Glitch Art", "Self-portrait", "Grid", "Abstract Map", "Deliberately broken"
+        ];
+
+        // Banque contenant les 31 fonctions d'initialisation de p5.js au format "Instance mode"
+        const sketches = {
+            1: (p) => { p.setup = () => { p.createCanvas(400, 400); p.noLoop(); }; p.draw = () => { p.background(255); for (let x = 0; x < 400; x += 10) { p.strokeWeight(p.random(1, 5)); p.line(x, 0, x, 400); } }; },
+            2: (p) => { p.setup = () => { p.createCanvas(400, 400); p.noLoop(); }; p.draw = () => { p.background(255); for (let x = 0; x < 400; x += 5) { let w = p.map(p.sin(x * 0.05), -1, 1, 1, 8); p.strokeWeight(w); p.line(x, 0, x, 400); } }; },
+            3: (p) => { p.setup = () => { p.createCanvas(400, 400); p.noLoop(); }; p.draw = () => { p.background(10, 10, 25); p.fill(255); p.noStroke(); for (let i = 0; i < 200; i++) p.circle(p.random(400), p.random(400), p.random(1, 3)); }; },
+            4: (p) => { p.setup = () => { p.createCanvas(400, 400); p.noLoop(); }; p.draw = () => { p.background(0); p.stroke(255); p.noFill(); for (let i = 0; i < 20; i++) p.rect(i * 10, i * 10, 400 - i * 20, 400 - i * 20); }; },
+            5: (p) => { p.setup = () => { p.createCanvas(400, 400); p.noLoop(); }; p.draw = () => { p.background(240); p.translate(200, 100); for (let i = 0; i < 10; i++) { p.rectMode(p.CENTER); p.push(); p.rotate(p.PI / 4); p.rect(0, i * 20, 100, 100); p.pop(); } }; },
+            6: (p) => { let x = 200, y = 200, dx = 3, dy = 2; p.setup = () => { p.createCanvas(400, 400); p.background(0); }; p.draw = () => { p.background(0, 10); p.fill(0, 255, 255); p.noStroke(); p.circle(x, y, 30); x += dx; y += dy; if (x > 400 || x < 0) dx *= -1; if (y > 400 || y < 0) dy *= -1; }; },
+            7: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(240); let progress = (p.frameCount % 100) / 100; p.fill(200); p.rect(50, 190, 300, 20); p.fill(50, 150, 250); p.rect(50, 190, 300 * progress, 20); p.fill(0); p.text("Loading: " + p.int(progress * 100) + "%", 50, 180); }; },
+            8: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(255); p.stroke(0, 40); for (let i = 0; i < 50000; i++) p.point(p.random(400), p.random(400)); }; },
+            9: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(255); p.textFont('monospace'); p.textSize(12); p.fill(0); let chars = "GENUARY"; for (let y = 0; y < 400; y += 12) { for (let x = 0; x < 400; x += 8) { p.text(chars[p.floor(p.random(chars.length))], x, y); } } }; },
+            10: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(255); p.translate(200, 200); p.noFill(); for (let r = 10; r < 200; r += 10) { p.stroke(0, 150); p.arc(0, 0, r, r, 0, p.TAU * (p.mouseX / 400)); } }; },
+            11: (p) => { p.setup = () => { p.createCanvas(400, 400); p.strokeWeight(8); p.noFill(); }; p.draw = () => { p.background(255); p.translate(200, 220); p.line(-100, 0, 100, 0); p.line(100, 0, 0, -170); p.line(0, -170, -80, -30); }; },
+            12: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(255); p.rect(0, 0, 200, 400); p.rect(200, 0, 200, 200); p.rect(200, 200, 100, 200); p.rect(300, 200, 100, 100); p.rect(300, 300, 100, 100); }; },
+            13: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(240); for (let i = 0; i < 15; i++) { p.fill(p.random(255), p.random(255), p.random(255), 150); p.triangle(p.random(400), p.random(400), p.random(400), p.random(400), p.random(400), p.random(400)); } }; },
+            14: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(220); for (let i = 0; i < 400; i += 10) p.line(i, p.mouseY, p.mouseX, i); }; },
+            15: (p) => { let y = 0, v = 0; p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(0); p.fill(255, 204, 0); p.ellipse(200, y, 40, 40); v += 0.6; y += v; if (y > 380) { y = 380; v *= -0.8; } }; },
+            16: (p) => { p.setup = () => { p.createCanvas(400, 400); p.noStroke(); let colors = ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']; for (let i = 0; i < 5; i++) { p.fill(colors[i]); p.rect(i * 80, 0, 80, 400); } }; },
+            17: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(255); p.textAlign(p.CENTER, p.CENTER); p.textSize(24); p.text("3.1415926535...", 200, 200); p.noFill(); p.ellipse(200, 200, 314, 314); }; },
+            18: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(240); p.noFill(); for (let y = 0; y < 400; y += 10) { p.beginShape(); for (let x = 0; x < 400; x += 10) { p.curveVertex(x, y + p.noise(x * 0.01, y * 0.01) * 50); } p.endShape(); } }; },
+            19: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(255); for (let i = 0; i < 400; i += 20) { p.line(i, 0, 400 - i, 400); p.line(0, i, 400, 400 - i); } }; },
+            20: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(20, 20, 40); p.fill(0); for (let x = 0; x < 400; x += 40) { let h = p.random(100, 300); p.rect(x, 400 - h, 35, h); p.fill(255, 255, 150); if (p.random() > 0.5) p.rect(x + 10, 400 - h + 20, 5, 5); p.fill(0); } }; },
+            21: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(255); p.fill(200); p.circle(200, 200, 100); if (p.dist(p.mouseX, p.mouseY, 200, 200) < 100) p.fill(255, 0, 0, 150); else p.fill(0, 255, 0, 150); p.circle(p.mouseX, p.mouseY, 100); }; },
+            22: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { for (let y = 0; y < 400; y++) { let c = p.lerpColor(p.color('#000044'), p.color('#00ccff'), p.map(y, 0, 400, 0, 1)); p.stroke(c); p.line(0, y, 400, y); } p.noLoop(); }; },
+            23: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(10, 0, 20); p.fill(255, 100, 0); p.noStroke(); p.circle(200, 150, 150); p.stroke(255, 0, 255); for (let i = 0; i <= 400; i += 40) p.line(i, 200, i, 400); for (let i = 0; i <= 200; i += 20) p.line(0, 200 + i, 400, 200 + i); }; },
+            24: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(245); p.rectMode(p.CENTER); p.noFill(); for (let i = 0; i < 5; i++) { p.rect(200, 200, i * 60, i * 60); p.circle(200, 200, i * 60); } }; },
+            25: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(255); p.translate(200, 400); let branch = (h) => { p.line(0, 0, 0, -h); p.translate(0, -h); if (h > 10) { p.push(); p.rotate(0.4); branch(h * 0.7); p.pop(); p.push(); p.rotate(-0.4); branch(h * 0.7); p.pop(); } }; branch(100); }; },
+            26: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(255); }; p.draw = () => { p.translate(200, 200); let x = p.random(-200, 200), y = p.random(-200, 200); p.fill(0, 50); p.ellipse(x, y, 10, 10); p.ellipse(-x, y, 10, 10); }; },
+            27: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(0, 0, 255); p.fill(255, 255, 0); p.textSize(80); p.text("GLITCH", 50, 220); }; p.draw = () => { let x1 = p.floor(p.random(400)), y1 = p.floor(p.random(400)), w = p.floor(p.random(10, 100)), h = p.floor(p.random(5, 30)); p.copy(x1, y1, w, h, x1 + p.random(-10, 10), y1 + p.random(-10, 10), w, h); }; },
+            28: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(255); p.ellipse(200, 180, 150, 180); p.circle(170, 170, 40); p.circle(230, 170, 40); p.line(190, 170, 210, 170); p.arc(200, 230, 60, 40, 0, p.PI); }; },
+            29: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(255); for (let x = 20; x < 400; x += 20) { for (let y = 20; y < 400; y += 20) { p.strokeWeight(p.random(1, 5)); p.point(x, y); } } }; },
+            30: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(240, 230, 210); p.noFill(); for (let i = 0; i < 20; i++) { p.stroke(100, 50, 0, 100); p.beginShape(); for (let j = 0; j < 5; j++) p.curveVertex(p.random(400), p.random(400)); p.endShape(); } }; },
+            31: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(255); }; p.draw = () => { p.stroke(p.random(255), 0, 0); p.line(0, 0, p.random(800), p.random(800)); if (p.frameCount > 200) p.noLoop(); }; }
+        };
+
+        // Génération automatique des 31 cartes HTML dans la page
+        const grid = document.getElementById('grid-container');
+        let currentP5Instance = null;
+
+        prompts.forEach((prompt, index) => {
+            const dayNum = index + 1;
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.onclick = () => launchSketch(dayNum);
+            card.innerHTML = `
+                <div class="card-title">Jour ${dayNum}</div>
+                <div class="card-prompt">${prompt}</div>
+                <div class="btn-launch">Lancer l'œuvre ⚡️</div>
+            `;
+            grid.appendChild(card);
+        });
+
+        // Fonction pour ouvrir la popup et exécuter le code p5js sélectionné
+        function launchSketch(day) {
+            closeSketch(); // Nettoie l'ancien sketch s'il y en avait un ouvert
+            
+            document.getElementById('modal-title').innerText = `Jour ${day} : ${prompts[day-1]}`;
+            document.getElementById('sketch-modal').style.display = 'flex';
+            
+            // On instancie p5 dans notre conteneur dédié
+            currentP5Instance = new p5(sketches[day], 'canvas-container');
+        }
+
+        // Fonction pour fermer la popup et couper le script en cours
+        function closeSketch() {
+            document.getElementById('sketch-modal').style.display = 'none';
+            if (currentP5Instance) {
+                currentP5Instance.remove(); // Supprime proprement l'instance p5 du DOM
+                currentP5Instance = null;
+            }
+        }
+    </script>
+</body>
+</html>
