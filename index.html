@@ -3,123 +3,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Genuary - 31 Itérations Interactives</title>
+    <title>Genuary 2026</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
     <style>
+        /* --- ESTHÉTIQUE CHAOTIQUE / HANDMADE (ANTI-GENERIC) --- */
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+        * { box-sizing: border-box; cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><polygon points="0,0 16,0 8,16" fill="%23ff0055"/></svg>'), auto; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #0f0f11;
-            color: #ffffff;
+            background-color: #0d0e12;
+            color: #f0f0f0;
+            font-family: 'Space Mono', monospace;
             margin: 0;
-            padding: 40px 20px;
+            padding: 20px;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(#222 15%, transparent 16%),
+                radial-gradient(#111 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
         }
+
+        /* BANNIÈRE BRUTALISTE & FAITE MAIN */
         header {
-            text-align: center;
-            margin-bottom: 50px;
+            background: #fff;
+            color: #000;
+            padding: 25px;
+            border: 4px solid #ff0055;
+            box-shadow: 12px 12px 0px #00ffaa;
+            transform: rotate(-1deg);
+            max-width: 900px;
+            margin: 20px auto 60px auto;
+            position: relative;
         }
-        h1 { margin: 0 0 10px 0; font-size: 2.5rem; color: #f0f0f0; }
-        p { color: #888; margin: 0; font-size: 1.1rem; }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
+
+        h1 {
+            font-family: 'VT323', monospace;
+            font-size: 3.5rem;
+            margin: 0;
+            text-transform: uppercase;
+            line-height: 0.9;
+            letter-spacing: -1px;
+        }
+
+        .hand-tag {
+            background: #ff0055;
+            color: #fff;
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            display: inline-block;
+            margin-top: 10px;
+            font-weight: bold;
+            transform: rotate(2deg);
+        }
+
+        /* --- PAS DE GRILLE (ANTI-GRID) : DISPOSITION CHAOTIQUE EN COLLAGE --- */
+        #handmade-canvas {
+            position: relative;
+            max-width: 1300px;
+            min-height: 2200px;
             margin: 0 auto;
         }
-        .card {
-            background: #18181c;
-            border: 1px solid #2a2a32;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
+
+        .sketch-card {
+            position: absolute;
+            background: #181920;
+            border: 3px solid #fff;
+            padding: 12px;
+            width: 260px;
+            box-shadow: 8px 8px 0px rgba(255, 255, 255, 0.2);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: #00ffaa;
-            box-shadow: 0 8px 20px rgba(0, 255, 170, 0.1);
+
+        .sketch-card:nth-child(even) { border-color: #00ffaa; box-shadow: 8px 8px 0px #ff0055; }
+        .sketch-card:nth-child(3n) { border-color: #ffe600; box-shadow: -8px 8px 0px #00ffaa; }
+
+        .sketch-card:hover {
+            z-index: 500 !important;
+            transform: scale(1.15) rotate(0deg) !important;
+            box-shadow: 15px 15px 0px #000 !important;
+            background: #fff;
+            color: #000;
         }
-        .card-title {
-            font-weight: bold;
-            font-size: 1.1rem;
+
+        .card-header {
+            font-family: 'VT323', monospace;
+            font-size: 1.5rem;
+            border-bottom: 2px dashed #ff0055;
+            padding-bottom: 4px;
             margin-bottom: 8px;
-            color: #e0e0e6;
+            display: flex;
+            justify-content: space-between;
         }
+
         .card-prompt {
-            font-size: 0.9rem;
-            color: #888;
+            font-size: 0.8rem;
             margin-bottom: 12px;
+            min-height: 35px;
             font-style: italic;
         }
+
         .btn-launch {
-            display: inline-block;
             background: #00ffaa;
-            color: #0f0f11;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
+            border: 2px solid #000;
+            color: #000;
+            font-family: 'VT323', monospace;
+            font-size: 1.3rem;
+            width: 100%;
+            padding: 4px;
+            cursor: pointer;
             font-weight: bold;
         }
 
-        /* Fenêtre Popup (Modal) pour afficher le p5.js en direct */
+        .sketch-card:hover .btn-launch {
+            background: #ff0055;
+            color: #fff;
+        }
+
+        /* --- FENÊTRE POPUP EN STYLE RETRO OS --- */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
         }
-        .modal-content {
-            background: #18181c;
-            padding: 25px;
-            border-radius: 16px;
-            border: 1px solid #333;
-            text-align: center;
-            position: relative;
+
+        .modal-window {
+            background: #c0c0c0;
+            border: 4px solid #000;
+            box-shadow: 12px 12px 0px #ff0055;
+            padding: 4px;
+            width: 450px;
         }
+
+        .title-bar {
+            background: #000080;
+            color: #fff;
+            padding: 4px 8px;
+            font-family: 'VT323', monospace;
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         #canvas-container {
             width: 400px;
             height: 400px;
             background: #000;
-            margin: 15px auto;
-            border-radius: 8px;
-            overflow: hidden;
+            margin: 10px auto;
+            border: 2px solid #000;
         }
+
         .close-btn {
-            position: absolute;
-            top: 15px; right: 20px;
-            font-size: 1.8rem;
-            color: #fff;
+            background: #c0c0c0;
+            color: #000;
+            border: 2px solid #fff;
+            font-weight: bold;
+            padding: 0 6px;
             cursor: pointer;
         }
-        .close-btn:hover { color: #ff5555; }
-        #modal-title { margin-top: 0; color: #00ffaa; }
+
+        /* --- CHATBOT TERMINAL NON-IA --- */
+        #bot-terminal {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 340px;
+            background: #000;
+            border: 3px solid #00ffaa;
+            box-shadow: 8px 8px 0px #ff0055;
+            z-index: 3000;
+            font-family: 'VT323', monospace;
+        }
+
+        .bot-bar {
+            background: #00ffaa;
+            color: #000;
+            padding: 4px 8px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .bot-body {
+            height: 260px;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        .bot-msgs {
+            flex: 1;
+            overflow-y: auto;
+            font-size: 1.1rem;
+            color: #00ffaa;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .msg-u { color: #ff0055; }
+        .msg-b { color: #00ffaa; }
+
+        .bot-input-row {
+            display: flex;
+            border-top: 2px solid #00ffaa;
+            margin-top: 5px;
+        }
+
+        .bot-input-row input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: 'VT323', monospace;
+            font-size: 1.2rem;
+            flex: 1;
+            outline: none;
+            padding: 4px;
+        }
+
+        .bot-input-row button {
+            background: #00ffaa;
+            border: none;
+            color: #000;
+            font-family: 'VT323', monospace;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .bot-chips {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .chip-btn {
+            background: #222;
+            color: #ffe600;
+            border: 1px solid #ffe600;
+            font-family: 'VT323', monospace;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .minimized .bot-body { display: none; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Genuary - Galerie Interactive</h1>
-        <p>31 itérations de code d'art génératif exécutées en temps réel.</p>
+        <h1>🖐️ GENUARY '26</h1>
+        <p style="margin: 5px 0 0 0;">31 CRAZYYY Visual Experiments Scattered in A Raw Space.</p>
+        <div class="hand-tag">ALL MISSED UP AND NO-AI CHATBOT SO WHAT ?</div>
     </header>
 
-    <main class="grid" id="grid-container"></main>
+    <!-- ZONE DE COLLAGE ASSUME, pas de grid comme convenu dans la consigne de l'enseignante ! -->
+    <main id="handmade-canvas"></main>
 
+    <!-- mon petit modal popup -->
     <div class="modal" id="sketch-modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeSketch()">&times;</span>
-            <h2 id="modal-title">Jour X</h2>
+        <div class="modal-window">
+            <div class="title-bar">
+                <span id="modal-title">RUNNING_SKETCH.EXE</span>
+                <button class="close-btn" onclick="closeSketch()">X</button>
+            </div>
             <div id="canvas-container"></div>
-            <p style="color: #aaa; font-size: 0.9rem; margin: 0;">Code p5.js actif</p>
+            <div style="text-align: center; font-size: 0.8rem; color: #444; padding: 4px;">p5.js Live Execution Engine</div>
+        </div>
+    </div>
+
+    <!-- CHATBOT NON-IA SIMPLE-->
+    <div id="bot-terminal">
+        <div class="bot-bar" onclick="toggleBot()">
+            <span>📟 NO-AI_BOT_V1.0</span>
+            <span id="bot-icon">−</span>
+        </div>
+        <div class="bot-body">
+            <div class="bot-msgs" id="bot-msgs">
+                <div class="msg-b">> Hello! I'm a No-AI deterministic bot. Ask me about Day 26 or type a day number!</div>
+            </div>
+            <div class="bot-chips">
+                <button class="chip-btn" onclick="sendQuick('day 26')">Fav: Day 26</button>
+                <button class="chip-btn" onclick="sendQuick('help')">Help</button>
+            </div>
+            <div class="bot-input-row">
+                <input type="text" id="bot-in" placeholder="type '26' or 'favori'..." onkeydown="if(event.key==='Enter') sendBot()">
+                <button onclick="sendBot()">SEND</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // La liste complète des 31 thèmes de Genuary
+        // prompts genuary
         const prompts = [
             "Vertical lines", "No randomness", "Space", "Black and White", "Isometric",
             "Make a screen saver", "Progress bar", "Draw 1 million of something", "ASCII Art", "Tau (τ)",
@@ -129,76 +312,147 @@
             "Symmetry", "Glitch Art", "Self-portrait", "Grid", "Abstract Map", "Deliberately broken"
         ];
 
-        // Banque contenant les 31 fonctions d'initialisation de p5.js au format "Instance mode"
+        // SKETCHES P5.JS (Instance Mode)
         const sketches = {
-            1: (p) => { p.setup = () => { p.createCanvas(400, 400); p.noLoop(); }; p.draw = () => { p.background(255); for (let x = 0; x < 400; x += 10) { p.strokeWeight(p.random(1, 5)); p.line(x, 0, x, 400); } }; },
-            2: (p) => { p.setup = () => { p.createCanvas(400, 400); p.noLoop(); }; p.draw = () => { p.background(255); for (let x = 0; x < 400; x += 5) { let w = p.map(p.sin(x * 0.05), -1, 1, 1, 8); p.strokeWeight(w); p.line(x, 0, x, 400); } }; },
+            1: (p) => { p.setup = () => { p.createCanvas(400, 400); p.noLoop(); }; p.draw = () => { p.background(10); p.stroke(0, 255, 170); for (let x = 0; x < 400; x += 10) { p.strokeWeight(p.random(1, 5)); p.line(x, 0, x, 400); } }; },
+            2: (p) => { p.setup = () => { p.createCanvas(400, 400); p.noLoop(); }; p.draw = () => { p.background(255); p.stroke(0); for (let x = 0; x < 400; x += 5) { let w = p.map(p.sin(x * 0.05), -1, 1, 1, 8); p.strokeWeight(w); p.line(x, 0, x, 400); } }; },
             3: (p) => { p.setup = () => { p.createCanvas(400, 400); p.noLoop(); }; p.draw = () => { p.background(10, 10, 25); p.fill(255); p.noStroke(); for (let i = 0; i < 200; i++) p.circle(p.random(400), p.random(400), p.random(1, 3)); }; },
             4: (p) => { p.setup = () => { p.createCanvas(400, 400); p.noLoop(); }; p.draw = () => { p.background(0); p.stroke(255); p.noFill(); for (let i = 0; i < 20; i++) p.rect(i * 10, i * 10, 400 - i * 20, 400 - i * 20); }; },
             5: (p) => { p.setup = () => { p.createCanvas(400, 400); p.noLoop(); }; p.draw = () => { p.background(240); p.translate(200, 100); for (let i = 0; i < 10; i++) { p.rectMode(p.CENTER); p.push(); p.rotate(p.PI / 4); p.rect(0, i * 20, 100, 100); p.pop(); } }; },
             6: (p) => { let x = 200, y = 200, dx = 3, dy = 2; p.setup = () => { p.createCanvas(400, 400); p.background(0); }; p.draw = () => { p.background(0, 10); p.fill(0, 255, 255); p.noStroke(); p.circle(x, y, 30); x += dx; y += dy; if (x > 400 || x < 0) dx *= -1; if (y > 400 || y < 0) dy *= -1; }; },
-            7: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(240); let progress = (p.frameCount % 100) / 100; p.fill(200); p.rect(50, 190, 300, 20); p.fill(50, 150, 250); p.rect(50, 190, 300 * progress, 20); p.fill(0); p.text("Loading: " + p.int(progress * 100) + "%", 50, 180); }; },
-            8: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(255); p.stroke(0, 40); for (let i = 0; i < 50000; i++) p.point(p.random(400), p.random(400)); }; },
-            9: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(255); p.textFont('monospace'); p.textSize(12); p.fill(0); let chars = "GENUARY"; for (let y = 0; y < 400; y += 12) { for (let x = 0; x < 400; x += 8) { p.text(chars[p.floor(p.random(chars.length))], x, y); } } }; },
-            10: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(255); p.translate(200, 200); p.noFill(); for (let r = 10; r < 200; r += 10) { p.stroke(0, 150); p.arc(0, 0, r, r, 0, p.TAU * (p.mouseX / 400)); } }; },
-            11: (p) => { p.setup = () => { p.createCanvas(400, 400); p.strokeWeight(8); p.noFill(); }; p.draw = () => { p.background(255); p.translate(200, 220); p.line(-100, 0, 100, 0); p.line(100, 0, 0, -170); p.line(0, -170, -80, -30); }; },
+            7: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(20); let progress = (p.frameCount % 100) / 100; p.fill(50); p.rect(50, 190, 300, 20); p.fill(0, 255, 170); p.rect(50, 190, 300 * progress, 20); p.fill(255); p.text("Loading: " + p.int(progress * 100) + "%", 50, 180); }; },
+            8: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(0); p.stroke(255, 100); for (let i = 0; i < 30000; i++) p.point(p.random(400), p.random(400)); }; },
+            9: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(10); p.fill(0, 255, 100); p.textFont('monospace'); p.textSize(12); let chars = "GENUARY"; for (let y = 12; y < 400; y += 12) { for (let x = 0; x < 400; x += 8) { p.text(chars[p.floor(p.random(chars.length))], x, y); } } }; },
+            10: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(10); p.translate(200, 200); p.noFill(); for (let r = 10; r < 200; r += 10) { p.stroke(0, 255, 255, 150); p.arc(0, 0, r, r, 0, p.TAU * (p.mouseX / 400)); } }; },
+            11: (p) => { p.setup = () => { p.createCanvas(400, 400); p.strokeWeight(8); p.noFill(); p.stroke(255, 0, 100); }; p.draw = () => { p.background(10); p.translate(200, 220); p.line(-100, 0, 100, 0); p.line(100, 0, 0, -170); p.line(0, -170, -80, -30); }; },
             12: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(255); p.rect(0, 0, 200, 400); p.rect(200, 0, 200, 200); p.rect(200, 200, 100, 200); p.rect(300, 200, 100, 100); p.rect(300, 300, 100, 100); }; },
-            13: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(240); for (let i = 0; i < 15; i++) { p.fill(p.random(255), p.random(255), p.random(255), 150); p.triangle(p.random(400), p.random(400), p.random(400), p.random(400), p.random(400), p.random(400)); } }; },
-            14: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(220); for (let i = 0; i < 400; i += 10) p.line(i, p.mouseY, p.mouseX, i); }; },
+            13: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(15); for (let i = 0; i < 15; i++) { p.fill(p.random(255), p.random(255), p.random(255), 150); p.triangle(p.random(400), p.random(400), p.random(400), p.random(400), p.random(400), p.random(400)); } }; },
+            14: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(20); p.stroke(255); for (let i = 0; i < 400; i += 10) p.line(i, p.mouseY, p.mouseX, i); }; },
             15: (p) => { let y = 0, v = 0; p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(0); p.fill(255, 204, 0); p.ellipse(200, y, 40, 40); v += 0.6; y += v; if (y > 380) { y = 380; v *= -0.8; } }; },
             16: (p) => { p.setup = () => { p.createCanvas(400, 400); p.noStroke(); let colors = ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']; for (let i = 0; i < 5; i++) { p.fill(colors[i]); p.rect(i * 80, 0, 80, 400); } }; },
-            17: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(255); p.textAlign(p.CENTER, p.CENTER); p.textSize(24); p.text("3.1415926535...", 200, 200); p.noFill(); p.ellipse(200, 200, 314, 314); }; },
-            18: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(240); p.noFill(); for (let y = 0; y < 400; y += 10) { p.beginShape(); for (let x = 0; x < 400; x += 10) { p.curveVertex(x, y + p.noise(x * 0.01, y * 0.01) * 50); } p.endShape(); } }; },
-            19: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(255); for (let i = 0; i < 400; i += 20) { p.line(i, 0, 400 - i, 400); p.line(0, i, 400, 400 - i); } }; },
+            17: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(10); p.fill(255); p.textAlign(p.CENTER, p.CENTER); p.textSize(20); p.text("3.1415926535...", 200, 200); p.stroke(0, 255, 170); p.noFill(); p.ellipse(200, 200, 314, 314); }; },
+            18: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(20); p.stroke(0, 255, 255); p.noFill(); for (let y = 0; y < 400; y += 10) { p.beginShape(); for (let x = 0; x < 400; x += 10) { p.curveVertex(x, y + p.noise(x * 0.01, y * 0.01) * 50); } p.endShape(); } }; },
+            19: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(0); p.stroke(255); for (let i = 0; i < 400; i += 20) { p.line(i, 0, 400 - i, 400); p.line(0, i, 400, 400 - i); } }; },
             20: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(20, 20, 40); p.fill(0); for (let x = 0; x < 400; x += 40) { let h = p.random(100, 300); p.rect(x, 400 - h, 35, h); p.fill(255, 255, 150); if (p.random() > 0.5) p.rect(x + 10, 400 - h + 20, 5, 5); p.fill(0); } }; },
-            21: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(255); p.fill(200); p.circle(200, 200, 100); if (p.dist(p.mouseX, p.mouseY, 200, 200) < 100) p.fill(255, 0, 0, 150); else p.fill(0, 255, 0, 150); p.circle(p.mouseX, p.mouseY, 100); }; },
-            22: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { for (let y = 0; y < 400; y++) { let c = p.lerpColor(p.color('#000044'), p.color('#00ccff'), p.map(y, 0, 400, 0, 1)); p.stroke(c); p.line(0, y, 400, y); } p.noLoop(); }; },
+            21: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(10); p.fill(100); p.circle(200, 200, 100); if (p.dist(p.mouseX, p.mouseY, 200, 200) < 100) p.fill(255, 0, 80, 180); else p.fill(0, 255, 170, 180); p.circle(p.mouseX, p.mouseY, 100); }; },
+            22: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { for (let y = 0; y < 400; y++) { let c = p.lerpColor(p.color('#ff0055'), p.color('#00ff66'), p.map(y, 0, 400, 0, 1)); p.stroke(c); p.line(0, y, 400, y); } p.noLoop(); }; },
             23: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(10, 0, 20); p.fill(255, 100, 0); p.noStroke(); p.circle(200, 150, 150); p.stroke(255, 0, 255); for (let i = 0; i <= 400; i += 40) p.line(i, 200, i, 400); for (let i = 0; i <= 200; i += 20) p.line(0, 200 + i, 400, 200 + i); }; },
-            24: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(245); p.rectMode(p.CENTER); p.noFill(); for (let i = 0; i < 5; i++) { p.rect(200, 200, i * 60, i * 60); p.circle(200, 200, i * 60); } }; },
-            25: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(255); p.translate(200, 400); let branch = (h) => { p.line(0, 0, 0, -h); p.translate(0, -h); if (h > 10) { p.push(); p.rotate(0.4); branch(h * 0.7); p.pop(); p.push(); p.rotate(-0.4); branch(h * 0.7); p.pop(); } }; branch(100); }; },
-            26: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(255); }; p.draw = () => { p.translate(200, 200); let x = p.random(-200, 200), y = p.random(-200, 200); p.fill(0, 50); p.ellipse(x, y, 10, 10); p.ellipse(-x, y, 10, 10); }; },
-            27: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(0, 0, 255); p.fill(255, 255, 0); p.textSize(80); p.text("GLITCH", 50, 220); }; p.draw = () => { let x1 = p.floor(p.random(400)), y1 = p.floor(p.random(400)), w = p.floor(p.random(10, 100)), h = p.floor(p.random(5, 30)); p.copy(x1, y1, w, h, x1 + p.random(-10, 10), y1 + p.random(-10, 10), w, h); }; },
-            28: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(255); p.ellipse(200, 180, 150, 180); p.circle(170, 170, 40); p.circle(230, 170, 40); p.line(190, 170, 210, 170); p.arc(200, 230, 60, 40, 0, p.PI); }; },
-            29: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(255); for (let x = 20; x < 400; x += 20) { for (let y = 20; y < 400; y += 20) { p.strokeWeight(p.random(1, 5)); p.point(x, y); } } }; },
-            30: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(240, 230, 210); p.noFill(); for (let i = 0; i < 20; i++) { p.stroke(100, 50, 0, 100); p.beginShape(); for (let j = 0; j < 5; j++) p.curveVertex(p.random(400), p.random(400)); p.endShape(); } }; },
-            31: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(255); }; p.draw = () => { p.stroke(p.random(255), 0, 0); p.line(0, 0, p.random(800), p.random(800)); if (p.frameCount > 200) p.noLoop(); }; }
+            24: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(10); p.stroke(0, 255, 255); p.rectMode(p.CENTER); p.noFill(); for (let i = 0; i < 5; i++) { p.rect(200, 200, i * 60, i * 60); p.circle(200, 200, i * 60); } }; },
+            25: (p) => { p.setup = () => p.createCanvas(400, 400); p.draw = () => { p.background(10); p.stroke(0, 255, 170); p.translate(200, 400); let branch = (h) => { p.line(0, 0, 0, -h); p.translate(0, -h); if (h > 10) { p.push(); p.rotate(0.4); branch(h * 0.7); p.pop(); p.push(); p.rotate(-0.4); branch(h * 0.7); p.pop(); } }; branch(100); }; },
+            26: (p) => { 
+                p.setup = () => { p.createCanvas(400, 400); p.background(5); }; 
+                p.draw = () => { 
+                    p.translate(200, 200); 
+                    let x = p.random(-180, 180), y = p.random(-180, 180); 
+                    p.noStroke();
+                    p.fill(0, 255, 170, 80); 
+                    p.ellipse(x, y, 8, 8); 
+                    p.fill(255, 0, 80, 80);
+                    p.ellipse(-x, y, 8, 8); 
+                }; 
+            },
+            27: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(0, 0, 255); p.fill(255, 255, 0); p.textSize(70); p.text("GLITCH", 40, 220); }; p.draw = () => { let x1 = p.floor(p.random(400)), y1 = p.floor(p.random(400)), w = p.floor(p.random(10, 100)), h = p.floor(p.random(5, 30)); p.copy(x1, y1, w, h, x1 + p.random(-10, 10), y1 + p.random(-10, 10), w, h); }; },
+            28: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(15); p.stroke(255); p.noFill(); p.ellipse(200, 180, 150, 180); p.circle(170, 170, 40); p.circle(230, 170, 40); p.line(190, 170, 210, 170); p.arc(200, 230, 60, 40, 0, p.PI); }; },
+            29: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(10); p.stroke(255); for (let x = 20; x < 400; x += 20) { for (let y = 20; y < 400; y += 20) { p.strokeWeight(p.random(1, 5)); p.point(x, y); } } }; },
+            30: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(10); p.noFill(); for (let i = 0; i < 20; i++) { p.stroke(0, 255, 255, 100); p.beginShape(); for (let j = 0; j < 5; j++) p.curveVertex(p.random(400), p.random(400)); p.endShape(); } }; },
+            31: (p) => { p.setup = () => { p.createCanvas(400, 400); p.background(0); }; p.draw = () => { p.stroke(p.random(255), 0, 100); p.line(0, 0, p.random(800), p.random(800)); if (p.frameCount > 150) p.noLoop(); }; }
         };
 
-        // Génération automatique des 31 cartes HTML dans la page
-        const grid = document.getElementById('grid-container');
+        // --- DISPOSITION SUR-MESURE EN MODE CRAQUAGE---
+        const mainContainer = document.getElementById('handmade-canvas');
         let currentP5Instance = null;
 
         prompts.forEach((prompt, index) => {
-            const dayNum = index + 1;
+            const day = index + 1;
             const card = document.createElement('div');
-            card.className = 'card';
-            card.onclick = () => launchSketch(dayNum);
+            card.className = 'sketch-card';
+            
+            // Coordonés chaotique 
+            const col = index % 4;
+            const row = Math.floor(index / 4);
+            const leftPos = col * 280 + Math.sin(index * 2.5) * 45 + 20;
+            const topPos = row * 260 + Math.cos(index * 1.8) * 40 + 20;
+            const rotation = (Math.sin(index * 3) * 12).toFixed(1);
+
+            card.style.left = `${leftPos}px`;
+            card.style.top = `${topPos}px`;
+            card.style.transform = `rotate(${rotation}deg)`;
+            card.style.zIndex = index + 10;
+
+            card.onclick = () => launchSketch(day);
             card.innerHTML = `
-                <div class="card-title">Jour ${dayNum}</div>
+                <div class="card-header">
+                    <span>DAY_${day < 10 ? '0' + day : day}</span>
+                    <span>#G26</span>
+                </div>
                 <div class="card-prompt">${prompt}</div>
-                <div class="btn-launch">Lancer l'œuvre ⚡️</div>
+                <button class="btn-launch">> RUN</button>
             `;
-            grid.appendChild(card);
+            mainContainer.appendChild(card);
         });
 
-        // Fonction pour ouvrir la popup et exécuter le code p5js sélectionné
         function launchSketch(day) {
-            closeSketch(); // Nettoie l'ancien sketch s'il y en avait un ouvert
-            
-            document.getElementById('modal-title').innerText = `Jour ${day} : ${prompts[day-1]}`;
+            closeSketch();
+            document.getElementById('modal-title').innerText = `RUNNING_DAY_${day}.EXE (${prompts[day-1]})`;
             document.getElementById('sketch-modal').style.display = 'flex';
-            
-            // On instancie p5 dans notre conteneur dédié
             currentP5Instance = new p5(sketches[day], 'canvas-container');
         }
 
-        // Fonction pour fermer la popup et couper le script en cours
         function closeSketch() {
             document.getElementById('sketch-modal').style.display = 'none';
             if (currentP5Instance) {
-                currentP5Instance.remove(); // Supprime proprement l'instance p5 du DOM
+                currentP5Instance.remove();
                 currentP5Instance = null;
             }
+        }
+
+        // --- CHATBOT NON-IA  ---
+        function sendBot() {
+            const input = document.getElementById('bot-in');
+            const val = input.value.trim();
+            if(!val) return;
+            addMsg(val, true);
+            input.value = '';
+            setTimeout(() => { replyBot(val); }, 250);
+        }
+
+        function sendQuick(txt) {
+            addMsg(txt, true);
+            setTimeout(() => { replyBot(txt); }, 250);
+        }
+
+        function addMsg(txt, isUser) {
+            const container = document.getElementById('bot-msgs');
+            const d = document.createElement('div');
+            d.className = isUser ? 'msg-u' : 'msg-b';
+            d.innerText = (isUser ? '> User: ' : '> Bot: ') + txt;
+            container.appendChild(d);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function replyBot(q) {
+            const query = q.toLowerCase();
+            const dayNum = parseInt(query.replace(/\D/g, ''));
+
+            if (dayNum >= 1 && dayNum <= 31) {
+                launchSketch(dayNum);
+                addMsg(`Triggered Day ${dayNum} (${prompts[dayNum-1]})!`);
+                return;
+            }
+
+            if (query.includes('26') || query.includes('sym') || query.includes('fav')) {
+                addMsg("My favorite Genuary26 project is DAY 26 (Symmetry)! It draws dual mirrored particles using ellipse(-x, y, 8, 8).");
+            } else if (query.includes('help')) {
+                addMsg("Type '26', 'favori', or any number 1-31 to trigger a sketch!");
+            } else {
+                addMsg("No AI here! Just pure rules. Type '26' for Day 26 or 'help'.");
+            }
+        }
+
+        function toggleBot() {
+            const term = document.getElementById('bot-terminal');
+            term.classList.toggle('minimized');
+            document.getElementById('bot-icon').innerText = term.classList.contains('minimized') ? '+' : '−';
         }
     </script>
 </body>
