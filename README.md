@@ -1,6 +1,6 @@
 ### 1. SITE GENUARY 
 
-**lien du site avec chatbot non ai : **
+**lien du site genuary avec chatbot non ai : https://tyro951.github.io/Genuary/**
 
 ---
 
